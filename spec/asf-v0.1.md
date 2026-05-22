@@ -184,6 +184,8 @@ A host that enforces `execution.calls` must provide runtime behavior:
 - decide whether user input interrupts or resumes the active skill
 - avoid storing mutable runtime state inside the skill artifact
 
+A host may also provide a skill-read hook. When an agent reads a `*/SKILL.md` file that contains `execution.calls`, the hook can inject guidance that the skill is ASF-formatted and can be run through the host's ASF runtime interface. The hook should not start the runtime by itself.
+
 ## 10. Session-Scoped State
 
 Runtime state must be scoped to the active agent session.

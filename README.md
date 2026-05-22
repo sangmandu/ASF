@@ -146,6 +146,8 @@ ASF_SKILLS_ROOT=/path/to/skills bash runtime/asf-run.sh init fix "Fix the bug"
 
 The runtime reads `execution.calls` from `SKILL.md`, expands nested skill calls into ordered step calls, prints the current step, and records progress in `.workflow/state.json` when run inside a Git worktree.
 
+ASF also includes a `Read */SKILL.md` hook helper. The hook does not start execution. It only tells the agent that the read skill is ASF-formatted and shows the standard runtime command to use when the user requested that skill.
+
 ## Documents
 
 - [ASF v0.1 Specification](spec/asf-v0.1.md)
