@@ -140,6 +140,7 @@ def step_key(skill: str, step_file: str, used: set[str]) -> str:
 
 
 def flatten_skill(root: Path, skill: str, used: set[str] | None = None) -> list[dict]:
+    skill = normalize_skill_name(skill)
     used = used if used is not None else set()
     skill_path = root / skill / "SKILL.md"
     if not skill_path.exists():
@@ -173,6 +174,15 @@ def flatten_skill(root: Path, skill: str, used: set[str] | None = None) -> list[
     return steps
 
 
+def normalize_skill_name(value: str) -> str:
+    name = value.strip().lstrip("/")
+    if not name:
+        fail("missing skill name")
+    if "/" in name or "\\" in name:
+        fail(f"invalid skill name: {value}")
+    return name
+
+
 def load_state(path: Path) -> dict:
     return json.loads(path.read_text())
 
@@ -190,6 +200,7 @@ def state_path_from_args(skill: str | None = None) -> Path:
 
 
 def init(skill: str, task_description: str) -> None:
+    skill = normalize_skill_name(skill)
     root = skills_root()
     steps = flatten_skill(root, skill)
     if not steps:
@@ -233,6 +244,46 @@ def init(skill: str, task_description: str) -> None:
     }
     save_state(state_path, state)
     print_current(state_path, "Follow the instructions below exactly.")
+
+
+def inspect(skill: str) -> None:
+    skill = normalize_skill_name(skill)
+    root = skills_root()
+    skill_path = root / skill / "SKILL.md"
+    run_sh = Path(__file__).resolve().with_name("asf-run.sh")
+    result = {
+        "skill": skill,
+        "skillPath": str(skill_path),
+        "exists": skill_path.exists(),
+        "asf": False,
+        "executable": False,
+        "reason": "",
+        "runtimeCommand": f'bash {run_sh} init {skill} "<task>"',
+    }
+
+    if not skill_path.exists():
+        result["reason"] = "skill not found"
+        print(json.dumps(result, indent=2))
+        return
+
+    parsed = parse_skill(skill_path)
+    calls = parsed.get("calls", [])
+    result["asf"] = bool(calls)
+    if not calls:
+        result["reason"] = "SKILL.md does not declare execution.calls"
+        print(json.dumps(result, indent=2))
+        return
+
+    steps = flatten_skill(root, skill)
+    if not steps:
+        result["reason"] = "execution.calls did not resolve to any runnable steps"
+        print(json.dumps(result, indent=2))
+        return
+
+    result["executable"] = True
+    result["reason"] = f"resolved {len(steps)} step(s)"
+    result["steps"] = steps
+    print(json.dumps(result, indent=2))
 
 
 def current_position(ctrl: dict) -> tuple[int, int]:
@@ -375,6 +426,7 @@ def usage() -> None:
 
 Commands:
   init <skill> "<task description>"
+  inspect <skill>
   complete <STEP_KEY>
   rewind <STEP_KEY>
   resume
@@ -398,6 +450,11 @@ def main() -> int:
             usage()
             return 2
         init(args[0], args[1])
+    elif command == "inspect":
+        if len(args) != 1:
+            usage()
+            return 2
+        inspect(args[0])
     elif command == "complete":
         if len(args) != 1:
             usage()

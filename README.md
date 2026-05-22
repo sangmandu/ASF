@@ -29,7 +29,7 @@ execution:
 ---
 ```
 
-ASF does not make this declaration powerful by itself. The power comes from a host harness or reference runtime that reads ASF metadata, keeps session-scoped state, and uses hooks to block, resume, or inject instructions at the right time.
+ASF does not make this declaration powerful by itself. The power comes from a host harness or reference runtime that reads ASF metadata, keeps session-scoped state, and exposes an explicit adapter such as `/asf <skill> <task>` to start, block, resume, or inject instructions at the right time.
 
 ## What ASF Is Not
 
@@ -146,7 +146,9 @@ ASF_SKILLS_ROOT=/path/to/skills bash runtime/asf-run.sh init fix "Fix the bug"
 
 The runtime reads `execution.calls` from `SKILL.md`, expands nested skill calls into ordered step calls, prints the current step, and records progress in `.workflow/state.json` when run inside a Git worktree.
 
-ASF also includes a `Read */SKILL.md` hook helper. The hook does not start execution. It only tells the agent that the read skill is ASF-formatted and shows the standard runtime command to use when the user requested that skill.
+Portable hosts should expose an explicit ASF adapter. For example, `/asf fix "Fix the bug"` should normalize `fix`, inspect whether the skill exists and declares runnable `execution.calls`, and then call the runtime only when the target is executable.
+
+ASF also includes a `Read */SKILL.md` hook helper for hosts where skill files are read through a normal hookable `Read` tool. The hook is optional and should not be treated as the portable activation mechanism because some harnesses load skills through internal readers.
 
 ## Documents
 

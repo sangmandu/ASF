@@ -179,10 +179,15 @@ A host that enforces `execution.calls` must provide runtime behavior:
 - parse `SKILL.md`
 - resolve `skill` and `step` calls
 - keep session-scoped execution state
+- expose an explicit adapter or command that starts ASF execution for a named skill
 - render the current instruction to the agent
 - decide whether Stop is allowed
 - decide whether user input interrupts or resumes the active skill
 - avoid storing mutable runtime state inside the skill artifact
+
+A host should not rely on a skill-read hook as its only activation mechanism. Different harnesses may read `SKILL.md` through internal loaders rather than a normal tool call.
+
+A portable host adapter should accept a named target skill, normalize command-like names such as `/fix` to `fix`, verify that the target skill exists, verify that it declares runnable `execution.calls`, and only then start ASF execution.
 
 A host may also provide a skill-read hook. When an agent reads a `*/SKILL.md` file that contains `execution.calls`, the hook can inject guidance that the skill is ASF-formatted and can be run through the host's ASF runtime interface. The hook should not start the runtime by itself.
 
