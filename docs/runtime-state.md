@@ -25,6 +25,14 @@ Custom:      user-configured path
 
 The state root should be configurable.
 
+For repo-bound coding workflows, a runtime may store state in the active worktree:
+
+```text
+<repo>/.workflow/state.json
+```
+
+Use this when the workflow is meaningful only inside that repository and when related artifacts are also stored under `.workflow/`. Non-repo skills should use a host-owned state root.
+
 ## Why Not Store State in SKILL.md
 
 `SKILL.md` is shared source material. It may be installed globally, committed to a repository, or reused by many terminals. Writing runtime state into it would mix source and execution state.
