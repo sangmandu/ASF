@@ -206,6 +206,14 @@ OpenCode:    ~/.local/share/opencode/state/asf/
 Custom:      user-configured path
 ```
 
+Repo-bound coding workflows may use a worktree-local state path when the active task is scoped to a repository:
+
+```text
+<repo>/.workflow/state.json
+```
+
+This is useful when workflow artifacts are also stored in `.workflow/`. Non-repo skills should use a host-owned state root.
+
 Minimal state snapshot:
 
 ```json

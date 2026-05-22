@@ -115,6 +115,14 @@ OpenCode:    ~/.local/share/opencode/state/asf/
 Custom:      user-configured path
 ```
 
+For repo-bound coding workflows, a host may store state in the active worktree instead:
+
+```text
+<repo>/.workflow/state.json
+```
+
+This keeps workflow state next to workflow artifacts such as specs, reproduction notes, and test results. Non-repo skills should use the host-owned state roots above.
+
 The runtime state belongs next to the host harness, not inside `SKILL.md`. A simple v0.1 state snapshot can be as small as:
 
 ```json
@@ -128,6 +136,16 @@ The runtime state belongs next to the host harness, not inside `SKILL.md`. A sim
 
 See [docs/runtime-state.md](docs/runtime-state.md) for the runtime-state design.
 
+## Reference Runtime
+
+ASF includes a small reference runtime in [`runtime/`](runtime/):
+
+```bash
+ASF_SKILLS_ROOT=/path/to/skills bash runtime/asf-run.sh init fix "Fix the bug"
+```
+
+The runtime reads `execution.calls` from `SKILL.md`, expands nested skill calls into ordered step calls, prints the current step, and records progress in `.workflow/state.json` when run inside a Git worktree.
+
 ## Documents
 
 - [ASF v0.1 Specification](spec/asf-v0.1.md)
@@ -135,6 +153,7 @@ See [docs/runtime-state.md](docs/runtime-state.md) for the runtime-state design.
 - [Design Report](docs/design-report.md)
 - [Weaknesses and Roadmap](docs/gaps-and-roadmap.md)
 - [README and Adoption Strategy](docs/readme-and-adoption.md)
+- [Reference Runtime](runtime/)
 - [Examples](examples/)
 
 ## Status
